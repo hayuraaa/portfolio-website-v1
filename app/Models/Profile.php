@@ -37,7 +37,12 @@ class Profile extends Model
     // Helper method to get the active profile
     public static function getActive()
     {
-        return self::where('is_active', true)->first();
+        try {
+            return self::where('is_active', true)->first();
+        } catch (\Exception $e) {
+            Log::error('Error getting active profile: ' . $e->getMessage());
+            return null;
+        }
     }
 
     // Helper method to get avatar URL

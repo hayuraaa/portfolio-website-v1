@@ -4,7 +4,6 @@ import { ref, onMounted, computed } from 'vue';
 import PortfolioNavbar from '@/Components/PortfolioNavbar.vue';
 import BackgroundEffects from '@/Components/BackgroundEffects.vue';
 
-
 const props = defineProps({
     profile: Object,
     skillsGrouped: Object,
@@ -21,14 +20,26 @@ const profileTitle = computed(() => {
 
 // Category display names mapping
 const categoryDisplayNames = {
-    'Frontend': 'Frontend Development',
     'Backend': 'Backend Development',
-    'Database': 'Database & Storage',
     'Machine Learning': 'Machine Learning & AI',
+    'Database': 'Database & Storage',
+    'Frontend': 'Frontend Development',
     'DevOps': 'DevOps & Cloud',
     'Mobile': 'Mobile Development',
     'Tools': 'Tools & Platforms',
     'Other': 'Other Technologies'
+};
+
+// Define category order
+const categoryOrder = {
+    'Backend': 1,
+    'Machine Learning': 2,
+    'Database': 5,
+    'Frontend': 3,
+    'DevOps': 6,
+    'Mobile': 7,
+    'Tools': 4,
+    'Other': 8
 };
 
 // Get display name for category
@@ -36,10 +47,28 @@ const getCategoryDisplayName = (category) => {
     return categoryDisplayNames[category] || category;
 };
 
+// Computed property to sort skills by category order
+const orderedSkillsGrouped = computed(() => {
+    if (!props.skillsGrouped) return {};
+    
+    // Convert object to array of [category, skills] pairs
+    const skillsArray = Object.entries(props.skillsGrouped);
+    
+    // Sort by category order
+    skillsArray.sort(([categoryA], [categoryB]) => {
+        const orderA = categoryOrder[categoryA] || 999;
+        const orderB = categoryOrder[categoryB] || 999;
+        return orderA - orderB;
+    });
+    
+    // Convert back to object
+    return Object.fromEntries(skillsArray);
+});
+
 onMounted(() => {
     setTimeout(() => {
         isLoaded.value = true;
-        console.log('SkillsPage loaded, isLoaded:', isLoaded.value); // Debug: Pastikan komponen ter-mount
+        console.log('SkillsPage loaded, isLoaded:', isLoaded.value);
     }, 100);
 });
 </script>
@@ -89,7 +118,7 @@ onMounted(() => {
                     isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
                 ]">
                     <div
-                        v-for="(skills, category, index) in skillsGrouped"
+                        v-for="(skills, category, index) in orderedSkillsGrouped"
                         :key="category"
                         class="group backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
                     >

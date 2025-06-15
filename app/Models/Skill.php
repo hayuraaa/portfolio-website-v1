@@ -53,7 +53,7 @@ class Skill extends Model
             // If it's external URL
             return $this->logo_url;
         }
-        return asset('images/default-tech-logo.png');
+        return asset('images/default-tech-logo.svg');
     }
 
     // Get skills grouped by category
