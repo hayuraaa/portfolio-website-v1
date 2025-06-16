@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted } from 'vue';
+
 const props = defineProps({
     activeSection: {
         type: String,
@@ -77,6 +79,29 @@ const getIconTextClass = (itemId, isMobile = false) => {
         text: `${textClass} text-white/70 group-hover:text-white`
     };
 };
+
+// Apply scrollbar hiding on mount
+onMounted(() => {
+    // Apply scrollbar hiding styles only
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Menghilangkan scrollbar di semua browser */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        body {
+            -ms-overflow-style: none;
+            overflow-x: hidden;
+        }
+    `;
+    document.head.appendChild(style);
+});
 </script>
 
 <template>
