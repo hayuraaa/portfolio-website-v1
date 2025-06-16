@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\BlogController as ControllersBlogController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController as ControllersProjectController;
@@ -32,7 +33,7 @@ Route::get('/projects', [ControllersProjectController::class, 'index'])->name('p
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/contact/preview-cv', [ContactController::class, 'previewCv'])->name('contact.preview-cv');
-
+Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
 
 // Blog Public Routes
 Route::prefix('blog')->name('blog.')->group(function () {

@@ -5,6 +5,8 @@ import { router } from '@inertiajs/vue3'
 import PortfolioNavbar from '@/Components/PortfolioNavbar.vue'
 import ProjectDetailModal from '@/Components/ProjectDetailModal.vue'
 import BackgroundEffects from '@/Components/BackgroundEffects.vue';
+import AIChatbot from '@/Components/AIChatbot.vue';
+
 
 
 const props = defineProps({
@@ -241,6 +243,7 @@ const openLink = (url) => {
                 </div>
             </div>
         </main>
+        <AIChatbot />
     </div>
 
     <!-- Modal Detail Proyek -->

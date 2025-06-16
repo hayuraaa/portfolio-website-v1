@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import { ref, onMounted } from 'vue'
 import PortfolioNavbar from '@/Components/PortfolioNavbar.vue'
 import BackgroundEffects from '@/Components/BackgroundEffects.vue';
+import AIChatbot from '@/Components/AIChatbot.vue';
 
 
 const props = defineProps({
@@ -404,6 +405,7 @@ onMounted(() => {
                 </div>
             </div>
         </main>
+        <AIChatbot />
     </div>
 </template>
 
