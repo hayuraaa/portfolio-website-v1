@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="google-site-verification" content="432JcWSePqM6n-WHiVg9ZWfuWEXMqNXjSvJpYcqXmXE" />
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
         <link rel="icon" type="image/jpeg" href="{{ asset('favicon.jpg') }}">
