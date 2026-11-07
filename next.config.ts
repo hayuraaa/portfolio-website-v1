@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Self-contained server in .next/standalone, used by the Docker image.
-  output: "standalone",
+  // Self-contained server in .next/standalone, only for the Docker image (it sets this variable).
+  // aaPanel and other plain-Node setups run `next start` instead.
+  output: process.env.NEXT_STANDALONE === "1" ? "standalone" : undefined,
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {

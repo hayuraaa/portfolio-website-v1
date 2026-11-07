@@ -5,14 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "tsx scripts/migrate.mts && next start",
     "lint": "eslint",
     "db:seed": "tsx scripts/seed-from-v1.mts",
     "admin:create": "tsx scripts/create-admin.mts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "dummy:certificates": "tsx scripts/dummy-certificates.mts"
+    "dummy:certificates": "tsx scripts/dummy-certificates.mts",
+    "db:export": "tsx scripts/export-db.mts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
