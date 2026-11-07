@@ -2,7 +2,7 @@
 # Writes backups/portfolio-<timestamp>.tar.gz: a consistent copy of the database
 # (VACUUM INTO, safe while the site runs) plus all uploads. Keeps the latest 14.
 #
-#   cd /www/wwwroot/portfolio && ./deploy/backup-aapanel.sh
+#   cd /www/wwwroot/harisyr.my.id && ./deploy/backup-aapanel.sh
 # aaPanel cron: Cron -> Shell Script, daily, with the line above.
 set -euo pipefail
 cd "$(dirname "$0")/.."

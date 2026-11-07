@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Update the site on an aaPanel server: pull, install, build.
-# Then restart the project in aaPanel (Website -> Node Project -> Restart).
+# Then restart the project in aaPanel (Website -> Node.js Project -> Restart).
 #
-#   cd /www/wwwroot/portfolio && ./deploy/update-aapanel.sh
+#   cd /www/wwwroot/harisyr.my.id && ./deploy/update-aapanel.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 git pull --ff-only
+# Always npm (package-lock.json); aaPanel may leave pnpm/yarn files behind.
+rm -rf .pnpm-store pnpm-lock.yaml pnpm-workspace.yaml yarn.lock
 npm ci --no-audit --no-fund
 npm run build
 

@@ -1,101 +1,86 @@
 # Deploy dengan aaPanel
 
-Aplikasi jalan sebagai **Node Project** di aaPanel; aaPanel yang mengurus proses, reverse proxy Nginx, dan SSL.
-Semua data ada di satu folder: `storage/` (database `portfolio.db` + `uploads/`).
+Situs ini berjalan di `https://harisyr.my.id` sebagai **Node.js Project** di aaPanel
+(Ubuntu 20.04, Node v24 dari aaPanel, port 3002). aaPanel mengurus proses, reverse proxy Nginx, dan SSL.
+Semua data ada di satu folder: `/www/wwwroot/harisyr.my.id/storage/` (database `portfolio.db` + `uploads/`).
 
-Contoh di bawah memakai folder `/www/wwwroot/portfolio` dan port `3001` — ganti kalau sudah terpakai.
+## Pengaturan project di aaPanel
 
-## 1. Swap (sekali saja)
-
-Build Next.js butuh ±1–1,5 GB RAM. Cek dengan `free -h`; kalau baris `Swap` masih 0:
-
-```sh
-fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
-echo '/swapfile none swap sw 0 0' >> /etc/fstab
-```
-
-## 2. Node.js
-
-aaPanel → **Website → Node Project → Node version manager** → install **v22** (LTS).
-Lalu di Terminal, arahkan PATH ke Node itu:
-
-```sh
-ls /www/server/nodejs/                       # lihat versi yang terpasang, mis. v22.12.0
-export PATH=/www/server/nodejs/v22.12.0/bin:$PATH
-node -v
-```
-
-## 3. Ambil kode dan install
-
-```sh
-cd /www/wwwroot
-git clone -b v2-nextjs https://github.com/hayuraaa/portfolio-website-v1.git portfolio
-cd portfolio
-echo 'DATABASE_URL=file:storage/portfolio.db' > .env
-npm ci --no-audit --no-fund
-
-# Cek driver SQLite cocok dengan server ini:
-node -e "require('@libsql/client').createClient({url:':memory:'}).execute('select sqlite_version() v').then(r=>console.log('libsql OK', r.rows[0].v))"
-```
-
-## 4. Data
-
-- **Pindah dari laptop:** di laptop jalankan `npm run db:export`, lalu upload `deploy-export/portfolio.db`
-  lewat aaPanel **Files** ke `/www/wwwroot/portfolio/storage/` (buat folder `storage` kalau belum ada).
-  Salinan ini sudah tanpa sertifikat dummy; akun admin ikut, jadi login dengan password yang sama.
-- **Atau mulai kosong:** lewati upload, nanti buat akun dengan `npx tsx scripts/create-admin.mts`.
-
-## 5. Build
-
-```sh
-npm run build
-mkdir -p storage/uploads
-chown -R www:www /www/wwwroot/portfolio
-```
-
-## 6. Tambahkan di aaPanel
-
-**Website → Node Project → Add Node project**
+**Website → Node.js Project → harisyr → Modify**
 
 | Isian | Nilai |
 | --- | --- |
-| Project directory | `/www/wwwroot/portfolio` |
-| Project name | `portfolio` |
-| Run opt | `start` (menjalankan `npm run start`: migrasi database, lalu server) |
-| Port | `3001` |
-| Run user | `www` |
-| Node version | v22 |
-| Domain | domain kamu |
+| Path | `/www/wwwroot/harisyr.my.id` |
+| Name | `harisyr` (hanya huruf, angka, garis bawah) |
+| Run opt | **Custom command**: `node node_modules/next/dist/bin/next start -p 3002` |
+| Port | `3002` (3000 dan 3001 dipakai aplikasi lain) |
+| User | `www` |
+| Node | v24.16.0 |
+| Boot | aktif |
 
-Lalu buka pengaturan project → **SSL** → Let's Encrypt → aktifkan **Force HTTPS**.
-Login hanya bisa lewat HTTPS, jadi SSL harus aktif sebelum masuk ke `/login`.
+Hal yang perlu diperhatikan:
 
-Upload gambar bisa sampai 25 MB per simpan; pastikan Nginx mengizinkannya
-(**Config** situs → `client_max_body_size 30m;`).
+- **Jangan centang "Install dependencies"** dan jangan pakai pnpm/yarn. aaPanel mendeteksi pnpm sendiri;
+  kalau dibiarkan, ia memasang ulang dependency dengan pnpm/yarn, menghapus `package-lock.json`,
+  dan bisa membuat server sangat lambat. Dependency selalu dipasang manual dengan `npm ci`.
+- **Port harus ditulis di perintah** (`-p 3002`). aaPanel tidak meneruskan port ke aplikasi;
+  tanpa itu Next.js mencoba port 3000 dan langsung berhenti (`EADDRINUSE`).
+- **Next.js dijalankan langsung dengan `node`**, bukan `npm run start`, supaya tidak ada proses npm
+  yang ikut memakan ±75 MB RAM. Migrasi database tetap jalan otomatis saat server start.
+- SSL: tab **SSL** → Let's Encrypt (`harisyr.my.id` + `www`) → **Force HTTPS**.
+  Login admin hanya bisa lewat HTTPS.
+- Nginx sudah mengizinkan upload 50 MB (`client_max_body_size` di `nginx.conf`), cukup untuk admin.
+- Log aplikasi: `/www/wwwlogs/nodejs/harisyr.log`.
 
 ## Update setelah ada perubahan kode
 
+Di Terminal aaPanel:
+
 ```sh
-cd /www/wwwroot/portfolio
-export PATH=/www/server/nodejs/v22.12.0/bin:$PATH
+cd /www/wwwroot/harisyr.my.id
 ./deploy/update-aapanel.sh
 ```
 
-Lalu **Restart** project di aaPanel. Data di `storage/` tidak tersentuh.
+Script ini menjalankan `git pull`, `npm ci`, `npm run build`, lalu `chown` ke user `www`.
+Setelah selesai, klik **Restart** pada project di aaPanel. Data di `storage/` tidak tersentuh.
+
+Build butuh ±1–1,5 GB RAM; server ini punya swap tambahan 2 GB di `/swapfile` untuk itu.
 
 ## Backup
 
 ```sh
-cd /www/wwwroot/portfolio && ./deploy/backup-aapanel.sh
+cd /www/wwwroot/harisyr.my.id && ./deploy/backup-aapanel.sh
 ```
 
 Hasilnya `backups/portfolio-<tanggal>.tar.gz` (database + upload), menyimpan 14 terakhir.
-Jadwalkan lewat aaPanel **Cron → Shell Script**, harian, dengan dua baris di atas
-(tambahkan `export PATH=...` seperti di langkah 2). Sesekali unduh ke luar VPS.
+Bisa dijadwalkan lewat aaPanel **Cron → Shell Script** (harian) dengan baris di atas.
+Sesekali unduh ke luar VPS.
+
+## Pasang dari nol (server baru)
+
+```sh
+# swap kalau RAM ≤ 2 GB
+fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+cd /www/wwwroot
+git clone -b v2-nextjs https://github.com/hayuraaa/portfolio-website-v1.git harisyr.my.id
+cd harisyr.my.id
+git config --global --add safe.directory /www/wwwroot/harisyr.my.id
+echo 'DATABASE_URL=file:storage/portfolio.db' > .env
+npm ci --no-audit --no-fund
+mkdir -p storage/uploads
+# upload storage/portfolio.db (dari `npm run db:export` di laptop), atau mulai kosong
+npm run build
+chown -R www:www /www/wwwroot/harisyr.my.id
+```
+
+Lalu tambahkan project di aaPanel dengan pengaturan di atas. Kalau database kosong,
+buat akun admin: `npx tsx scripts/create-admin.mts`, lalu `chown -R www:www storage`.
 
 ## Catatan
 
-- Jangan buka `storage/portfolio.db` dengan tool SQLite lain saat aplikasi jalan; perubahan terakhir bisa hilang.
+- Jangan membuka `storage/portfolio.db` dengan tool SQLite lain saat aplikasi jalan; perubahan terakhir bisa hilang.
   Untuk salinan, pakai script backup.
 - Lupa password admin: `npx tsx scripts/create-admin.mts` dengan email yang sama, lalu `chown -R www:www storage`.
 
