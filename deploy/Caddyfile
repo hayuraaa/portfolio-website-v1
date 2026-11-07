@@ -1,0 +1,10 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Saves can carry several images; the app itself caps them at 25 MB.
+	request_body {
+		max_size 30MB
+	}
+
+	reverse_proxy app:3000
+}

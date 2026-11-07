@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio v2
 
-## Getting Started
+Portofolio Haris Yunanda — Next.js 16, SQLite (Drizzle ORM), dengan halaman admin di `/admin`.
 
-First, run the development server:
+## Jalankan di laptop
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+npm install
+npm run admin:create   # buat akun admin (sekali)
+npm run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Database (`storage/portfolio.db`) dan file upload (`storage/uploads/`) dibuat otomatis.
+Migrasi database jalan sendiri setiap server start.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Import profil dari situs lama (Laravel, MySQL): `npm run db:seed`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Mengubah struktur database
 
-## Learn More
+1. Edit `src/db/schema.ts`
+2. `npm run db:generate` — membuat file migrasi baru di `drizzle/`
+3. Restart `npm run dev`; migrasi diterapkan otomatis. Commit file di `drizzle/`.
 
-To learn more about Next.js, take a look at the following resources:
+`npm run db:studio` membuka tampilan isi database di browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Jangan buka `storage/portfolio.db` dengan `sqlite3` bawaan macOS atau tool SQLite lain selagi `npm run dev` jalan; versi SQLite-nya berbeda dan perubahan bisa hilang. Pakai `db:studio`, atau matikan server dulu.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Lihat [DEPLOY.md](./DEPLOY.md) — Docker Compose + Caddy (HTTPS otomatis) di VPS.

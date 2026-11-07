@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# runtime data: SQLite database + uploaded files
+/storage/
+!.env.example
+
+# local backups made by deploy/backup.sh
+/backups/
+/dist/
